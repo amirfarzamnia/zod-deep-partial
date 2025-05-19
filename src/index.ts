@@ -24,7 +24,7 @@ export function deepPartial<T extends z.ZodTypeAny>(schema: T): DeepPartial<T> {
     return z
       .intersection(
         deepPartial(schema._def.left),
-        deepPartial(schema._def.right)
+        deepPartial(schema._def.right),
       )
       .optional() as any;
   } else if (schema instanceof z.ZodRecord) {

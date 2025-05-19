@@ -31,7 +31,7 @@ describe("deepPartial", () => {
     expect(() => partialSchema.parse({ items: [] })).not.toThrow();
     expect(() => partialSchema.parse({ items: [{}] })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ items: [{ value: "test" }] })
+      partialSchema.parse({ items: [{ value: "test" }] }),
     ).not.toThrow();
   });
 
@@ -46,7 +46,7 @@ describe("deepPartial", () => {
   it("should handle intersections", () => {
     const schema = z.intersection(
       z.object({ name: z.string() }),
-      z.object({ age: z.number() })
+      z.object({ age: z.number() }),
     );
     const partialSchema = deepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
@@ -102,7 +102,7 @@ describe("deepPartial", () => {
               createdAt: z.date(),
               updatedAt: z.date(),
             }),
-          })
+          }),
         ),
       }),
     });
@@ -114,7 +114,7 @@ describe("deepPartial", () => {
     expect(() => partialSchema.parse({ user: {} })).not.toThrow();
     expect(() => partialSchema.parse({ user: { profile: {} } })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ user: { profile: { personal: {} } } })
+      partialSchema.parse({ user: { profile: { personal: {} } } }),
     ).not.toThrow();
     expect(() => partialSchema.parse({ user: { posts: [] } })).not.toThrow();
     expect(() => partialSchema.parse({ user: { posts: [{}] } })).not.toThrow();
@@ -160,7 +160,7 @@ describe("deepPartial", () => {
     expect(() => partialSchema.parse({ emptyArray: [] })).not.toThrow();
     expect(() => partialSchema.parse({ emptyObject: {} })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ nestedEmpty: { emptyArray: [], emptyObject: {} } })
+      partialSchema.parse({ nestedEmpty: { emptyArray: [], emptyObject: {} } }),
     ).not.toThrow();
   });
 
@@ -212,7 +212,7 @@ describe("deepPartial", () => {
       z.object({
         value: z.string(),
         children: z.array(treeSchema),
-      })
+      }),
     );
 
     const partialSchema = deepPartial(treeSchema);
