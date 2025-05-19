@@ -20,7 +20,13 @@ export type DeepPartial<T extends ZodTypeAny> = T extends ZodObject<infer Shape>
   : T extends ZodRecord<infer Key, infer Value>
   ? ZodRecord<Key, DeepPartial<Value>>
   : T extends ZodTuple<infer Items>
-  ? ZodTuple<{ [k in keyof Items]: DeepPartial<Items[k]> }>
+  ? ZodTuple<
+      { [k in keyof Items]: DeepPartial<Items[k]> } extends infer U
+        ? U extends any[]
+          ? U
+          : never
+        : never
+    >
   : T extends ZodLazy<infer Type>
   ? ZodLazy<DeepPartial<Type>>
   : T;
