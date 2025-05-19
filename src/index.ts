@@ -6,33 +6,35 @@ import type { DeepPartial } from "./types";
  * @param schema The Zod schema to make deeply partial
  * @returns A new Zod schema where all properties are optional at all levels
  */
-export function deepPartial<T extends z.ZodTypeAny>(schema: T): DeepPartial<T> {
+export function zodDeepPartial<T extends z.ZodTypeAny>(
+  schema: T
+): DeepPartial<T> {
   if (schema instanceof z.ZodObject) {
     const shape = schema.shape;
     const newShape: Record<string, any> = {};
 
     for (const key in shape) {
-      newShape[key] = deepPartial(shape[key]).optional();
+      newShape[key] = zodDeepPartial(shape[key]).optional();
     }
 
     return z.object(newShape).partial() as any;
   } else if (schema instanceof z.ZodArray) {
-    return z.array(deepPartial(schema.element)).optional() as any;
+    return z.array(zodDeepPartial(schema.element)).optional() as any;
   } else if (schema instanceof z.ZodUnion) {
-    return z.union(schema.options.map(deepPartial)).optional() as any;
+    return z.union(schema.options.map(zodDeepPartial)).optional() as any;
   } else if (schema instanceof z.ZodIntersection) {
     return z
       .intersection(
-        deepPartial(schema._def.left),
-        deepPartial(schema._def.right),
+        zodDeepPartial(schema._def.left),
+        zodDeepPartial(schema._def.right)
       )
       .optional() as any;
   } else if (schema instanceof z.ZodRecord) {
-    return z.record(deepPartial(schema.valueSchema)).optional() as any;
+    return z.record(zodDeepPartial(schema.valueSchema)).optional() as any;
   } else if (schema instanceof z.ZodTuple) {
-    return z.tuple(schema.items.map(deepPartial) as any).optional() as any;
+    return z.tuple(schema.items.map(zodDeepPartial) as any).optional() as any;
   } else if (schema instanceof z.ZodLazy) {
-    return z.lazy(() => deepPartial(schema._def.getter())).optional() as any;
+    return z.lazy(() => zodDeepPartial(schema._def.getter())).optional() as any;
   } else if (schema instanceof z.ZodDiscriminatedUnion) {
     // For discriminated unions, we need to keep the discriminator field required
     // but make all other fields optional
@@ -46,13 +48,13 @@ export function deepPartial<T extends z.ZodTypeAny>(schema: T): DeepPartial<T> {
           if (key === schema.discriminator) {
             newShape[key] = shape[key];
           } else {
-            newShape[key] = deepPartial(shape[key]).optional();
+            newShape[key] = zodDeepPartial(shape[key]).optional();
           }
         }
 
         return z.object(newShape);
       }
-      return deepPartial(option);
+      return zodDeepPartial(option);
     });
 
     return z.discriminatedUnion(schema.discriminator, options) as any;
@@ -61,4 +63,4 @@ export function deepPartial<T extends z.ZodTypeAny>(schema: T): DeepPartial<T> {
   }
 }
 
-export default deepPartial;
+export default zodDeepPartial;

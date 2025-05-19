@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { deepPartial } from "../src";
+import { zodDeepPartial } from "../src";
 
-describe("deepPartial", () => {
+describe("zodDeepPartial", () => {
   it("should make top-level properties optional", () => {
     const schema = z.object({ name: z.string() });
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ name: "test" })).not.toThrow();
   });
@@ -16,7 +16,7 @@ describe("deepPartial", () => {
         age: z.number(),
       }),
     });
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ user: {} })).not.toThrow();
     expect(() => partialSchema.parse({ user: { name: "test" } })).not.toThrow();
@@ -26,18 +26,18 @@ describe("deepPartial", () => {
     const schema = z.object({
       items: z.array(z.object({ value: z.string() })),
     });
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ items: [] })).not.toThrow();
     expect(() => partialSchema.parse({ items: [{}] })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ items: [{ value: "test" }] }),
+      partialSchema.parse({ items: [{ value: "test" }] })
     ).not.toThrow();
   });
 
   it("should handle unions", () => {
     const schema = z.union([z.string(), z.number()]);
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse(undefined)).not.toThrow();
     expect(() => partialSchema.parse("test")).not.toThrow();
     expect(() => partialSchema.parse(123)).not.toThrow();
@@ -46,9 +46,9 @@ describe("deepPartial", () => {
   it("should handle intersections", () => {
     const schema = z.intersection(
       z.object({ name: z.string() }),
-      z.object({ age: z.number() }),
+      z.object({ age: z.number() })
     );
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ name: "test" })).not.toThrow();
     expect(() => partialSchema.parse({ age: 123 })).not.toThrow();
@@ -56,21 +56,21 @@ describe("deepPartial", () => {
 
   it("should handle records", () => {
     const schema = z.record(z.string());
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ key: "value" })).not.toThrow();
   });
 
   it("should handle tuples", () => {
     const schema = z.tuple([z.string(), z.number()]);
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse(undefined)).not.toThrow();
     expect(() => partialSchema.parse(["test", 123])).not.toThrow();
   });
 
   it("should handle lazy types", () => {
     const schema = z.lazy(() => z.object({ name: z.string() }));
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
     expect(() => partialSchema.parse(undefined)).not.toThrow();
     expect(() => partialSchema.parse({ name: "test" })).not.toThrow();
   });
@@ -102,19 +102,19 @@ describe("deepPartial", () => {
               createdAt: z.date(),
               updatedAt: z.date(),
             }),
-          }),
+          })
         ),
       }),
     });
 
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
 
     // Test various levels of partial data
     expect(() => partialSchema.parse({})).not.toThrow();
     expect(() => partialSchema.parse({ user: {} })).not.toThrow();
     expect(() => partialSchema.parse({ user: { profile: {} } })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ user: { profile: { personal: {} } } }),
+      partialSchema.parse({ user: { profile: { personal: {} } } })
     ).not.toThrow();
     expect(() => partialSchema.parse({ user: { posts: [] } })).not.toThrow();
     expect(() => partialSchema.parse({ user: { posts: [{}] } })).not.toThrow();
@@ -132,7 +132,7 @@ describe("deepPartial", () => {
       undefined: z.undefined(),
     });
 
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
 
     // Test each primitive type
     expect(() => partialSchema.parse({ string: "test" })).not.toThrow();
@@ -155,12 +155,12 @@ describe("deepPartial", () => {
       }),
     });
 
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
 
     expect(() => partialSchema.parse({ emptyArray: [] })).not.toThrow();
     expect(() => partialSchema.parse({ emptyObject: {} })).not.toThrow();
     expect(() =>
-      partialSchema.parse({ nestedEmpty: { emptyArray: [], emptyObject: {} } }),
+      partialSchema.parse({ nestedEmpty: { emptyArray: [], emptyObject: {} } })
     ).not.toThrow();
   });
 
@@ -175,7 +175,7 @@ describe("deepPartial", () => {
       nativeEnum: z.nativeEnum(TestEnum),
     });
 
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
 
     expect(() => partialSchema.parse({ enum: "A" })).not.toThrow();
     expect(() => partialSchema.parse({ nativeEnum: TestEnum.A })).not.toThrow();
@@ -194,7 +194,7 @@ describe("deepPartial", () => {
       }),
     ]);
 
-    const partialSchema = deepPartial(schema);
+    const partialSchema = zodDeepPartial(schema);
 
     expect(() => partialSchema.parse({ type: "A" })).not.toThrow();
     expect(() => partialSchema.parse({ type: "A", a: "test" })).not.toThrow();
@@ -212,10 +212,10 @@ describe("deepPartial", () => {
       z.object({
         value: z.string(),
         children: z.array(treeSchema),
-      }),
+      })
     );
 
-    const partialSchema = deepPartial(treeSchema);
+    const partialSchema = zodDeepPartial(treeSchema);
 
     const validTree = {
       value: "root",
