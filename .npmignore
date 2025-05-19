@@ -1,0 +1,9 @@
+src
+test
+coverage
+assets
+.*
+*.config.*
+*.md
+tsconfig.*
+docs

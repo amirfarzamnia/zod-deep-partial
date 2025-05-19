@@ -1,0 +1,44 @@
+{
+  "name": "zod-deep-partial",
+  "version": "1.0.0",
+  "description": "A package to make zod schemas deeply partial",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepublishOnly": "pnpm build && pnpm test"
+  },
+  "keywords": [
+    "zod",
+    "deep",
+    "partial",
+    "nested",
+    "object"
+  ],
+  "author": "Amir Farzamnia <amir2452fa@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typedoc": "^0.28.4",
+    "typescript": "^5.8.3",
+    "zod": "^3.24.4"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "homepage": "https://amirfarzamnia.github.io/zod-deep-partial",
+  "bugs": {
+    "url": "https://github.com/amirfarzamnia/zod-deep-partial/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amirfarzamnia/zod-deep-partial.git"
+  },
+  "peerDependencies": {
+    "zod": "^3.24.4"
+  }
+}
