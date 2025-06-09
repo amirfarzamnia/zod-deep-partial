@@ -25,7 +25,7 @@ importers:
         version: 5.8.3
       zod:
         specifier: ^3.25.3
-        version: 3.25.3
+        version: 3.25.56
 
 packages:
 
@@ -1246,8 +1246,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@3.25.3:
-    resolution: {integrity: sha512-VGZqnyYNrl8JpEJRZaFPqeVNIuqgXNu4cXZ5cOb6zEUO1OxKbRnWB4UdDIXMmiERWncs0yDQukssHov8JUxykQ==}
+  zod@3.25.56:
+    resolution: {integrity: sha512-rd6eEF3BTNvQnR2e2wwolfTmUTnp70aUTqr0oaGbHifzC3BKJsoV+Gat8vxUMR1hwOKBs6El+qWehrHbCpW6SQ==}
 
 snapshots:
 
@@ -2736,4 +2736,4 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.25.3: {}
+  zod@3.25.56: {}
