@@ -25,7 +25,7 @@
     "ts-jest": "^29.3.4",
     "typedoc": "^0.28.4",
     "typescript": "^5.8.3",
-    "zod": "^3.25.3"
+    "zod": "^4.1.1"
   },
   "files": [
     "dist/**/*"
@@ -39,6 +39,6 @@
     "url": "git+https://github.com/amirfarzamnia/zod-deep-partial.git"
   },
   "peerDependencies": {
-    "zod": "^3.25.3"
+    "zod": "^4.1.1"
   }
 }
