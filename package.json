@@ -17,7 +17,7 @@
     "nested",
     "object"
   ],
-  "author": "Amir Farzamnia <amir2452fa@gmail.com>",
+  "author": "Amir Farzamnia <amirfarzamnia@proton.me>",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.14",
