@@ -47,7 +47,7 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
         zodDeepPartialInternal(schema.def.left, false),
         zodDeepPartialInternal(schema.def.right, false),
       )
-      .optional() as any;
+      .optional();
   } else if (schema instanceof z.ZodRecord) {
     return z
       .record(
@@ -62,7 +62,7 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
           zodDeepPartialInternal(item, false),
         ) as any,
       )
-      .optional() as any;
+      .optional();
   } else if (schema instanceof z.ZodLazy) {
     return z
       .lazy(() => zodDeepPartialInternal(schema.def.getter(), false))
@@ -93,10 +93,7 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
       return zodDeepPartialInternal(option, false);
     });
 
-    return z.discriminatedUnion(
-      schema.def.discriminator,
-      options as any,
-    ) as any;
+    return z.discriminatedUnion(schema.def.discriminator, options as any);
   } else {
     return (schema as any).optional();
   }
@@ -105,5 +102,5 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
 export function zodDeepPartial<T extends z.core.SomeType>(
   schema: T,
 ): DeepPartial<T> {
-  return zodDeepPartialInternal(schema, true) as any;
+  return zodDeepPartialInternal(schema, true);
 }
