@@ -20,12 +20,12 @@
   "author": "Amir Farzamnia <amirfarzamnia@proton.me>",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.3.4",
-    "typedoc": "^0.28.4",
-    "typescript": "^5.8.3",
-    "zod": "^3.25.3"
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typedoc": "^0.28.15",
+    "typescript": "^5.9.3",
+    "zod": "^4.1.13"
   },
   "files": [
     "dist/**/*"
@@ -39,6 +39,6 @@
     "url": "git+https://github.com/amirfarzamnia/zod-deep-partial.git"
   },
   "peerDependencies": {
-    "zod": "^3.25.3"
+    "zod": "^4.1.13"
   }
 }
