@@ -34,36 +34,48 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
     }
 
     return result;
-  } else if (schema instanceof z.ZodArray) {
+  }
+
+  if (schema instanceof z.ZodArray) {
     return z
       .array(zodDeepPartialInternal(schema.def.element, false))
       .optional();
-  } else if (schema instanceof z.ZodMap) {
+  }
+
+  if (schema instanceof z.ZodMap) {
     return z
       .map(
         zodDeepPartialInternal(schema.def.keyType, false),
         zodDeepPartialInternal(schema.def.valueType, false),
       )
       .optional();
-  } else if (schema instanceof z.ZodUnion) {
+  }
+
+  if (schema instanceof z.ZodUnion) {
     return z
       .union(schema.options.map((opt) => zodDeepPartialInternal(opt, false)))
       .optional();
-  } else if (schema instanceof z.ZodIntersection) {
+  }
+
+  if (schema instanceof z.ZodIntersection) {
     return z
       .intersection(
         zodDeepPartialInternal(schema.def.left, false),
         zodDeepPartialInternal(schema.def.right, false),
       )
       .optional();
-  } else if (schema instanceof z.ZodRecord) {
+  }
+
+  if (schema instanceof z.ZodRecord) {
     return z
       .record(
         zodDeepPartialInternal(schema.def.keyType, false),
         zodDeepPartialInternal(schema.def.valueType, false),
       )
       .optional();
-  } else if (schema instanceof z.ZodTuple) {
+  }
+
+  if (schema instanceof z.ZodTuple) {
     return z
       .tuple(
         schema.def.items.map((item) =>
@@ -71,11 +83,15 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
         ) as any,
       )
       .optional();
-  } else if (schema instanceof z.ZodLazy) {
+  }
+
+  if (schema instanceof z.ZodLazy) {
     return z
       .lazy(() => zodDeepPartialInternal(schema.def.getter(), false))
       .optional();
-  } else if (schema instanceof z.ZodDiscriminatedUnion) {
+  }
+
+  if (schema instanceof z.ZodDiscriminatedUnion) {
     // For discriminated unions, we need to keep the discriminator field required
     // but make all other fields optional
     const options = schema.options.map((option) => {
@@ -102,9 +118,9 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
     });
 
     return z.discriminatedUnion(schema.def.discriminator, options as any);
-  } else {
-    return (schema as any).optional();
   }
+
+  return (schema as any).optional();
 }
 
 export function zodDeepPartial<T extends z.core.SomeType>(
