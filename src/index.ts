@@ -56,7 +56,13 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
       )
       .optional();
   } else if (schema instanceof z.ZodTuple) {
-    return z.tuple(schema.def.items as any).optional() as any;
+    return z
+      .tuple(
+        schema.def.items.map((item) =>
+          zodDeepPartialInternal(item, false),
+        ) as any,
+      )
+      .optional() as any;
   } else if (schema instanceof z.ZodLazy) {
     return z
       .lazy(() => zodDeepPartialInternal(schema.def.getter(), false))

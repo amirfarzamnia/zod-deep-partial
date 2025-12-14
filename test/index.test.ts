@@ -171,16 +171,21 @@ describe("zodDeepPartial", () => {
     ).not.toThrow();
   });
 
-  it("should handle tuples correctly (making the tuple itself optional)", () => {
+  it("should handle tuples correctly (deep-partial tuple elements)", () => {
     const schema = z.tuple([z.string(), z.number()]);
     const partialSchema = zodDeepPartial(schema);
 
     // ✅ Valid: Missing (top-level optional)
     expect(() => partialSchema.parse(undefined)).not.toThrow();
+
     // ✅ Valid: Full tuple
     expect(() => partialSchema.parse(["test", 123])).not.toThrow();
-    // ❌ Invalid: Partial tuple is not the same as deep partial for tuples
-    expect(() => partialSchema.parse(["test"])).toThrow();
+
+    // ✅ Valid: Partial tuple (elements are optional)
+    expect(() => partialSchema.parse(["test"])).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse([123])).toThrow();
   });
 
   // --- Complex Type Tests ---
