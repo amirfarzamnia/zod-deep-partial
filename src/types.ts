@@ -1,5 +1,5 @@
 import {
-  ZodTypeAny,
+  z,
   ZodObject,
   ZodArray,
   ZodUnion,
@@ -9,7 +9,7 @@ import {
   ZodLazy,
 } from "zod";
 
-export type DeepPartial<T extends ZodTypeAny> =
+export type DeepPartial<T extends z.core.SomeType> =
   T extends ZodObject<infer Shape>
     ? ZodObject<{ [k in keyof Shape]: DeepPartial<Shape[k]> }>
     : T extends ZodArray<infer Type>
