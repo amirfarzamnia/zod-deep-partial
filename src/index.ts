@@ -10,6 +10,14 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
   schema: T,
   isTopLevel: boolean = false,
 ): any {
+  if (schema instanceof z.ZodOptional) {
+    return zodDeepPartialInternal(schema.unwrap(), false).optional();
+  }
+
+  if (schema instanceof z.ZodNullable) {
+    return zodDeepPartialInternal(schema.unwrap(), false).nullable();
+  }
+
   if (schema instanceof z.ZodObject) {
     const shape = schema.shape;
     const newShape: Record<string, any> = {};

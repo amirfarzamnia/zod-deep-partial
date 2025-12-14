@@ -346,4 +346,107 @@ describe("zodDeepPartial", () => {
     // ❌ Invalid: Incorrect literal/enum value
     expect(() => partialSchema.parse({ status: "inactive" })).toThrow();
   });
+
+  // --- ZodOptional & ZodNullable Specific Tests ---
+
+  it("should preserve nullable semantics while deep-partialing", () => {
+    const schema = z.object({
+      name: z.string().nullable(),
+      nested: z.object({
+        value: z.number().nullable(),
+      }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Missing fields
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Nullable fields explicitly set to null
+    expect(() => partialSchema.parse({ name: null })).not.toThrow();
+    expect(() =>
+      partialSchema.parse({ nested: { value: null } }),
+    ).not.toThrow();
+
+    // ❌ Invalid: Wrong type (still enforced)
+    expect(() => partialSchema.parse({ name: 123 })).toThrow();
+    expect(() => partialSchema.parse({ nested: { value: "123" } })).toThrow();
+  });
+
+  it("should preserve optional semantics while deep-partialing", () => {
+    const schema = z.object({
+      title: z.string().optional(),
+      nested: z.object({
+        count: z.number().optional(),
+      }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Missing everything
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Explicit undefined
+    expect(() => partialSchema.parse({ title: undefined })).not.toThrow();
+
+    // ✅ Valid: Nested optional missing
+    expect(() => partialSchema.parse({ nested: {} })).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ title: 123 })).toThrow();
+  });
+
+  it("should handle optional + nullable combinations correctly", () => {
+    const schema = z.object({
+      value: z.string().optional().nullable(),
+      nested: z.object({
+        inner: z.number().nullable().optional(),
+      }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Missing
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Explicit null
+    expect(() => partialSchema.parse({ value: null })).not.toThrow();
+    expect(() =>
+      partialSchema.parse({ nested: { inner: null } }),
+    ).not.toThrow();
+
+    // ✅ Valid: Explicit undefined
+    expect(() => partialSchema.parse({ value: undefined })).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ value: 123 })).toThrow();
+    expect(() => partialSchema.parse({ nested: { inner: "123" } })).toThrow();
+  });
+
+  it("should deep-partial optional and nullable schemas inside arrays", () => {
+    const schema = z.object({
+      items: z.array(
+        z.object({
+          name: z.string().nullable(),
+          count: z.number().optional(),
+        }),
+      ),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Missing
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Array with empty object
+    expect(() => partialSchema.parse({ items: [{}] })).not.toThrow();
+
+    // ✅ Valid: Nullable inside array
+    expect(() =>
+      partialSchema.parse({ items: [{ name: null }] }),
+    ).not.toThrow();
+
+    // ❌ Invalid: Wrong type inside array
+    expect(() => partialSchema.parse({ items: [{ count: "1" }] })).toThrow();
+  });
 });
