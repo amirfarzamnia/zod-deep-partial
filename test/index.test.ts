@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { zodDeepPartial } from "../src"; // Assuming 'zodDeepPartial' is the correct export
+import { zodDeepPartial } from "../src";
 
 describe("zodDeepPartial", () => {
   // --- Basic Object Tests ---
