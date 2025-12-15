@@ -1,4 +1,4 @@
-name: "Publish"
+name: Publish
 
 on:
   push:
@@ -14,6 +14,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "latest"
+          cache: "npm"
+
+      - run: npm ci
 
       - run: npm test
 
