@@ -97,7 +97,7 @@ type PartialUser = z.infer<typeof partialUserSchema>;
 
 ## API
 
-### `zodDeepPartial<T extends z.ZodTypeAny>(schema: T): DeepPartial<T>`
+### `zodDeepPartial<T extends z.core.SomeType>(schema: T): DeepPartial<T>`
 
 - **`schema`**: The Zod schema to make deeply partial.
 - **Returns**: A new Zod schema where all properties are recursively optional.

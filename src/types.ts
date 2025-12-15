@@ -61,7 +61,9 @@ export type DeepPartial<T extends z.core.SomeType> =
         ? ZodDefault<DeepPartial<Inner>>
         : // Objects: Recursively make all properties in the shape optional
           T extends ZodObject<infer Shape>
-          ? ZodObject<{ [K in keyof Shape]: DeepPartial<Shape[K]> }>
+          ? ZodObject<{
+              [K in keyof Shape]: ZodOptional<DeepPartial<Shape[K]>>;
+            }>
           : // Arrays: Recursively apply DeepPartial to element type
             T extends ZodArray<infer Type>
             ? ZodArray<DeepPartial<Type>>
@@ -89,4 +91,4 @@ export type DeepPartial<T extends z.core.SomeType> =
                       T extends ZodLazy<infer Type>
                       ? ZodLazy<DeepPartial<Type>>
                       : // Fallback: For any other schema type, return as-is
-                        T;
+                        ZodOptional<T>;
