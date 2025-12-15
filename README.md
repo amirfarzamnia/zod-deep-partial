@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/zod-deep-partial.svg)](https://badge.fury.io/js/zod-deep-partial)
 [![npm downloads](https://img.shields.io/npm/dm/zod-deep-partial.svg)](https://www.npmjs.com/package/zod-deep-partial)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A utility to recursively make all properties in a Zod schema optional.
 
