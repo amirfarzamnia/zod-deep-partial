@@ -7,6 +7,10 @@
 
 A utility to recursively make all properties in a Zod schema optional.
 
+> [!NOTE]
+> `zod-deep-partial` **v1.2.0 and above** requires **zod v4**.
+> If you are using **zod v3**, please use `zod-deep-partial` **versions prior to v1.2.0**.
+
 ## Description
 
 `zod-deep-partial` is a lightweight, zero-dependency package that provides a single function, `zodDeepPartial`. This function takes any Zod schema and returns a new schema where every property at every level of nesting is optional. This is particularly useful for creating schemas for patch updates or for handling incomplete data structures without sacrificing the benefits of Zod's validation.
