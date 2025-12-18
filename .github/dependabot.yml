@@ -4,4 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "main"
+    groups:
+          npm-dependencies:
+            patterns:
+              - "*"
