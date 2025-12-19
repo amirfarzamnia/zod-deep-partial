@@ -1,10 +1,13 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: monthly
     groups:
-          npm-dependencies:
-            patterns:
-              - "*"
+      npm-dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: chore
+      include: scope
