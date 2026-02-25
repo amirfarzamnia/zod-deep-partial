@@ -1,6 +1,6 @@
 {
   "name": "zod-deep-partial",
-  "version": "1.2.0",
+  "version": "1.4.2",
   "description": "A utility to recursively make all properties in a Zod schema optional.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
