@@ -1,14 +1,12 @@
 # Zod Deep Partial
 
-[![npm version](https://badge.fury.io/js/zod-deep-partial.svg)](https://badge.fury.io/js/zod-deep-partial)
-[![npm downloads](https://img.shields.io/npm/dm/zod-deep-partial.svg)](https://www.npmjs.com/package/zod-deep-partial)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![NPM Version](https://img.shields.io/npm/v/zod-deep-partial?style=flat-square&logo=npm&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Downloads](https://img.shields.io/npm/dm/zod-deep-partial?style=flat-square&logo=icloud&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM License](https://img.shields.io/npm/l/zod-deep-partial?style=flat-square&logo=spdx&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Type Definitions](https://img.shields.io/npm/types/zod-deep-partial?style=flat-square&logo=typescript&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Last Update](https://img.shields.io/npm/last-update/zod-deep-partial?style=flat-square&logo=clockify&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
 
 A utility to recursively make all properties in a Zod schema optional.
-
-> [!NOTE]
-> `zod-deep-partial` **v1.2.0 and above** requires **zod v4**.
-> If you are using **zod v3**, please use `zod-deep-partial` **versions prior to v1.2.0**.
 
 ## Description
 
@@ -43,19 +41,19 @@ A utility to recursively make all properties in a Zod schema optional.
 
 Install the package using your favorite package manager:
 
-**npm**
+### npm
 
 ```bash
 npm install zod-deep-partial
 ```
 
-**yarn**
+### yarn
 
 ```bash
 yarn add zod-deep-partial
 ```
 
-**pnpm**
+### pnpm
 
 ```bash
 pnpm add zod-deep-partial
@@ -86,11 +84,11 @@ const partialUserSchema = zodDeepPartial(userSchema);
 // 3. Use the partial schema for validation
 
 // All of these are now valid:
-partialUserSchema.parse({}); // ✅
-partialUserSchema.parse({ name: "John Doe" }); // ✅
-partialUserSchema.parse({ profile: {} }); // ✅
-partialUserSchema.parse({ profile: { bio: "A developer" } }); // ✅
-partialUserSchema.parse({ tags: ["developer"] }); // ✅
+partialUserSchema.parse({});
+partialUserSchema.parse({ name: "John Doe" });
+partialUserSchema.parse({ profile: {} });
+partialUserSchema.parse({ profile: { bio: "A developer" } });
+partialUserSchema.parse({ tags: ["developer"] });
 
 // Type inference is preserved
 type PartialUser = z.infer<typeof partialUserSchema>;
@@ -106,13 +104,6 @@ type PartialUser = z.infer<typeof partialUserSchema>;
 }
 */
 ```
-
-## API
-
-### `zodDeepPartial<T extends z.core.SomeType>(schema: T): DeepPartial<T>`
-
-- **`schema`**: The Zod schema to make deeply partial.
-- **Returns**: A new Zod schema where all properties are recursively optional.
 
 ## Contributing
 
