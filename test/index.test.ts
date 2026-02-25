@@ -75,7 +75,7 @@ describe("zodDeepPartial", () => {
     ).toThrow();
   });
 
-  // --- Array, Map, and Record Tests ---
+  // --- Array, Map, Set, and Record Tests ---
 
   it("should handle arrays of objects and allow partial objects within the array", () => {
     const itemSchema = z.object({ value: z.string(), count: z.number() });
@@ -137,6 +137,33 @@ describe("zodDeepPartial", () => {
 
     // ❌ Invalid: Map value has wrong type
     expect(() => partialSchema.parse(new Map([[3, { data: 123 }]]))).toThrow();
+  });
+
+  it("should handle sets and deep partial their element schema", () => {
+    const elementSchema = z.object({ id: z.number(), name: z.string() });
+    const schema = z.object({ items: z.set(elementSchema) });
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+    // ✅ Valid: Empty set
+    expect(() => partialSchema.parse({ items: new Set() })).not.toThrow();
+    // ✅ Valid: Set with partial elements
+    expect(() =>
+      partialSchema.parse({ items: new Set([{ id: 1 }]) }),
+    ).not.toThrow();
+    expect(() =>
+      partialSchema.parse({ items: new Set([{ name: "test" }]) }),
+    ).not.toThrow();
+    // ✅ Valid: Set with full elements
+    expect(() =>
+      partialSchema.parse({ items: new Set([{ id: 1, name: "test" }]) }),
+    ).not.toThrow();
+
+    // ❌ Invalid: Set element has wrong type
+    expect(() =>
+      partialSchema.parse({ items: new Set([{ id: "1" }]) }),
+    ).toThrow();
   });
 
   // --- Zod Modifiers and Utilities Tests ---
@@ -448,5 +475,504 @@ describe("zodDeepPartial", () => {
 
     // ❌ Invalid: Wrong type inside array
     expect(() => partialSchema.parse({ items: [{ count: "1" }] })).toThrow();
+  });
+
+  // --- ZodDefault Tests ---
+
+  it("should preserve default values while deep-partialing", () => {
+    const schema = z.object({
+      name: z.string().default("default-name"),
+      nested: z.object({
+        value: z.number().default(42),
+      }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object (defaults should apply)
+    expect(() => partialSchema.parse({})).not.toThrow();
+    const result1 = partialSchema.parse({});
+    expect(result1.name).toBe("default-name");
+
+    // ✅ Valid: Nested empty object
+    expect(() => partialSchema.parse({ nested: {} })).not.toThrow();
+    const result2 = partialSchema.parse({ nested: {} });
+    expect(result2.nested?.value).toBe(42);
+
+    // ✅ Valid: Override defaults
+    expect(() => partialSchema.parse({ name: "custom" })).not.toThrow();
+    const result3 = partialSchema.parse({ name: "custom" });
+    expect(result3.name).toBe("custom");
+  });
+
+  // --- ZodReadonly Tests ---
+
+  it("should preserve readonly wrapper while deep-partialing", () => {
+    const schema = z.object({
+      config: z.object({ name: z.string(), value: z.number() }).readonly(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Partial config
+    expect(() =>
+      partialSchema.parse({ config: { name: "test" } }),
+    ).not.toThrow();
+    expect(() => partialSchema.parse({ config: {} })).not.toThrow();
+
+    // ✅ Valid: Full config
+    expect(() =>
+      partialSchema.parse({ config: { name: "test", value: 123 } }),
+    ).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ config: { name: 123 } })).toThrow();
+  });
+
+  // --- ZodCatch Tests ---
+
+  it("should preserve catch wrapper while deep-partialing", () => {
+    const schema = z.object({
+      data: z.object({ name: z.string() }).catch({ name: "fallback" }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Partial data (catch should handle invalid inner data)
+    expect(() => partialSchema.parse({ data: {} })).not.toThrow();
+  });
+
+  // --- ZodPrefault Tests ---
+
+  it("should preserve prefault wrapper while deep-partialing", () => {
+    const schema = z.object({
+      data: z.object({ name: z.string() }).prefault({ name: "prefault-name" }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Partial data
+    expect(() => partialSchema.parse({ data: {} })).not.toThrow();
+  });
+
+  // --- ZodNonOptional Tests ---
+
+  it("should preserve nonoptional wrapper while deep-partialing", () => {
+    const schema = z.object({
+      value: z.string().optional().nonoptional(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object (the property itself becomes optional at object level)
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With value
+    expect(() => partialSchema.parse({ value: "test" })).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ value: 123 })).toThrow();
+  });
+
+  // --- ZodPipe (Transform) Tests ---
+
+  it("should handle pipe/transform schemas by preserving them as-is", () => {
+    const schema = z.object({
+      value: z.string().transform((s) => s.length),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object (the property is optional at object level)
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With value (transform should still work)
+    expect(() => partialSchema.parse({ value: "hello" })).not.toThrow();
+    const result = partialSchema.parse({ value: "hello" });
+    expect(result.value).toBe(5);
+
+    // ❌ Invalid: Wrong input type
+    expect(() => partialSchema.parse({ value: 123 })).toThrow();
+  });
+
+  // --- ZodPromise Tests ---
+
+  it("should handle promise schemas by deep-partialing inner type", async () => {
+    const schema = z.object({
+      data: z.promise(z.object({ name: z.string(), age: z.number() })),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Promise with partial data
+    const promise = Promise.resolve({ name: "test" });
+    const result = await partialSchema.parseAsync({ data: promise });
+    // result.data is a Promise, so we need to await it
+    const innerData = await result.data;
+    expect(innerData?.name).toBe("test");
+  });
+
+  // --- ZodDate Tests ---
+
+  it("should handle date schemas", () => {
+    const schema = z.object({
+      createdAt: z.date(),
+      updatedAt: z.date().optional(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With date
+    const date = new Date();
+    expect(() => partialSchema.parse({ createdAt: date })).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ createdAt: "2024-01-01" })).toThrow();
+  });
+
+  // --- ZodFile Tests ---
+
+  it("should handle file schemas", () => {
+    const schema = z.object({
+      file: z.file(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+  });
+
+  // --- ZodTemplateLiteral Tests ---
+
+  it("should handle template literal schemas", () => {
+    const schema = z.object({
+      path: z.templateLiteral(["users", "/", z.number()]),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With correct template literal value
+    expect(() => partialSchema.parse({ path: "users/123" })).not.toThrow();
+  });
+
+  // --- ZodNaN Tests ---
+
+  it("should handle NaN schemas", () => {
+    const schema = z.object({
+      value: z.nan(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With NaN
+    expect(() => partialSchema.parse({ value: NaN })).not.toThrow();
+
+    // ❌ Invalid: Non-NaN value
+    expect(() => partialSchema.parse({ value: 123 })).toThrow();
+  });
+
+  // --- ZodAny, ZodUnknown Tests ---
+
+  it("should handle any and unknown schemas", () => {
+    const schema = z.object({
+      anyValue: z.any(),
+      unknownValue: z.unknown(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With any value
+    expect(() => partialSchema.parse({ anyValue: "anything" })).not.toThrow();
+    expect(() => partialSchema.parse({ anyValue: 123 })).not.toThrow();
+
+    // ✅ Valid: With unknown value
+    expect(() =>
+      partialSchema.parse({ unknownValue: "something" }),
+    ).not.toThrow();
+  });
+
+  // --- ZodNever Tests ---
+
+  it("should handle never schemas", () => {
+    const schema = z.object({
+      neverValue: z.never(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object (never field is optional)
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ❌ Invalid: Providing a value to never field
+    expect(() => partialSchema.parse({ neverValue: "test" })).toThrow();
+  });
+
+  // --- ZodVoid Tests ---
+
+  it("should handle void schemas", () => {
+    const schema = z.object({
+      voidValue: z.void(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With undefined (void accepts undefined)
+    expect(() => partialSchema.parse({ voidValue: undefined })).not.toThrow();
+  });
+
+  // --- ZodSymbol Tests ---
+
+  it("should handle symbol schemas", () => {
+    const schema = z.object({
+      sym: z.symbol(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With symbol
+    expect(() => partialSchema.parse({ sym: Symbol("test") })).not.toThrow();
+
+    // ❌ Invalid: Wrong type
+    expect(() => partialSchema.parse({ sym: "not-a-symbol" })).toThrow();
+  });
+
+  // --- ZodUndefined Tests ---
+
+  it("should handle undefined schemas", () => {
+    const schema = z.object({
+      undefinedValue: z.undefined(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With explicit undefined
+    expect(() =>
+      partialSchema.parse({ undefinedValue: undefined }),
+    ).not.toThrow();
+
+    // ❌ Invalid: With non-undefined value
+    expect(() => partialSchema.parse({ undefinedValue: "test" })).toThrow();
+  });
+
+  // --- ZodNull Tests ---
+
+  it("should handle null schemas", () => {
+    const schema = z.object({
+      nullValue: z.null(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With null
+    expect(() => partialSchema.parse({ nullValue: null })).not.toThrow();
+
+    // ❌ Invalid: With non-null value
+    expect(() => partialSchema.parse({ nullValue: "test" })).toThrow();
+  });
+
+  // --- ZodFunction Tests ---
+
+  it("should handle function schemas", () => {
+    const schema = z.object({
+      handler: z.function(),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: With function
+    expect(() => partialSchema.parse({ handler: () => {} })).not.toThrow();
+
+    // ❌ Invalid: With non-function value
+    expect(() => partialSchema.parse({ handler: "not-a-function" })).toThrow();
+  });
+
+  // --- Complex Nested Scenarios ---
+
+  it("should handle deeply nested combinations of types", () => {
+    const schema = z.object({
+      users: z.array(
+        z.object({
+          profile: z.object({
+            name: z.string(),
+            contacts: z.array(
+              z.object({
+                type: z.enum(["email", "phone"]),
+                value: z.string(),
+                metadata: z
+                  .object({
+                    verified: z.boolean(),
+                    createdAt: z.date(),
+                  })
+                  .optional(),
+              }),
+            ),
+          }),
+          settings: z.record(
+            z.string(),
+            z.object({
+              enabled: z.boolean(),
+              config: z
+                .object({
+                  value: z.number(),
+                })
+                .nullable(),
+            }),
+          ),
+        }),
+      ),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // ✅ Valid: Empty object
+    expect(() => partialSchema.parse({})).not.toThrow();
+
+    // ✅ Valid: Partial users array
+    expect(() => partialSchema.parse({ users: [] })).not.toThrow();
+    expect(() => partialSchema.parse({ users: [{}] })).not.toThrow();
+
+    // ✅ Valid: Partial profile
+    expect(() =>
+      partialSchema.parse({ users: [{ profile: {} }] }),
+    ).not.toThrow();
+    expect(() =>
+      partialSchema.parse({ users: [{ profile: { name: "test" } }] }),
+    ).not.toThrow();
+
+    // ✅ Valid: Partial contacts
+    expect(() =>
+      partialSchema.parse({
+        users: [{ profile: { contacts: [{}] } }],
+      }),
+    ).not.toThrow();
+    expect(() =>
+      partialSchema.parse({
+        users: [{ profile: { contacts: [{ type: "email" }] } }],
+      }),
+    ).not.toThrow();
+
+    // ✅ Valid: Partial settings record
+    expect(() =>
+      partialSchema.parse({ users: [{ settings: {} }] }),
+    ).not.toThrow();
+    expect(() =>
+      partialSchema.parse({ users: [{ settings: { theme: {} } }] }),
+    ).not.toThrow();
+    expect(() =>
+      partialSchema.parse({
+        users: [{ settings: { theme: { enabled: true } } }],
+      }),
+    ).not.toThrow();
+
+    // ❌ Invalid: Wrong type in nested structure
+    expect(() =>
+      partialSchema.parse({ users: [{ profile: { name: 123 } }] }),
+    ).toThrow();
+    expect(() =>
+      partialSchema.parse({
+        users: [{ profile: { contacts: [{ type: "invalid" }] } }],
+      }),
+    ).toThrow();
+  });
+
+  // --- Performance Tests ---
+
+  it("should handle large schemas efficiently", () => {
+    // Create a large schema with many nested properties
+    const createNestedObject = (depth: number): z.ZodObject<any> => {
+      if (depth === 0) {
+        return z.object({
+          value: z.string(),
+          count: z.number(),
+        });
+      }
+      return z.object({
+        nested: createNestedObject(depth - 1),
+        value: z.string(),
+      });
+    };
+
+    const largeSchema = createNestedObject(10);
+    const partialSchema = zodDeepPartial(largeSchema);
+
+    // ✅ Valid: Should parse quickly even with deep nesting
+    const start = performance.now();
+    expect(() => partialSchema.parse({})).not.toThrow();
+    const duration = performance.now() - start;
+
+    // Should complete in reasonable time (< 100ms for 10 levels)
+    expect(duration).toBeLessThan(100);
+  });
+
+  // --- Type Inference Tests ---
+
+  it("should provide correct type inference for partial schemas", () => {
+    const schema = z.object({
+      name: z.string(),
+      age: z.number(),
+      nested: z.object({
+        value: z.string(),
+      }),
+    });
+
+    const partialSchema = zodDeepPartial(schema);
+
+    // Type inference test - these should compile without errors
+    type PartialType = z.infer<typeof partialSchema>;
+
+    // All properties should be optional
+    const validEmpty: PartialType = {};
+    const validPartial: PartialType = { name: "test" };
+    const validNested: PartialType = { nested: {} };
+    const validFull: PartialType = {
+      name: "test",
+      age: 30,
+      nested: { value: "test" },
+    };
+
+    expect(validEmpty).toBeDefined();
+    expect(validPartial).toBeDefined();
+    expect(validNested).toBeDefined();
+    expect(validFull).toBeDefined();
   });
 });

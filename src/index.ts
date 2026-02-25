@@ -6,7 +6,8 @@ import type { DeepPartial } from "./types";
  *
  * This function traverses a Zod schema and recursively makes all properties optional
  * at every level of nesting. It handles all Zod schema types including objects, arrays,
- * unions, intersections, records, tuples, lazy schemas, and discriminated unions.
+ * unions, intersections, records, tuples, lazy schemas, discriminated unions, sets,
+ * promises, readonly, catch, pipe, nonoptional, and prefault.
  *
  * For discriminated unions, the discriminator field is preserved as required to maintain
  * the discriminator's functionality, while all other fields become optional.
@@ -30,6 +31,35 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
   // Handle nullable schemas by unwrapping and re-applying nullable
   if (schema instanceof z.ZodNullable) {
     return zodDeepPartialInternal(schema.unwrap(), false).nullable();
+  }
+
+  // Handle default schemas by unwrapping and re-applying default
+  if (schema instanceof z.ZodDefault) {
+    const innerResult = zodDeepPartialInternal(schema.unwrap(), false);
+    return innerResult.default(schema.def.defaultValue);
+  }
+
+  // Handle catch schemas by unwrapping and re-applying catch
+  if (schema instanceof z.ZodCatch) {
+    const innerResult = zodDeepPartialInternal(schema.def.innerType, false);
+    return innerResult.catch(schema.def.catchValue);
+  }
+
+  // Handle prefault schemas by unwrapping and re-applying prefault
+  if (schema instanceof z.ZodPrefault) {
+    const innerResult = zodDeepPartialInternal(schema.def.innerType, false);
+    return innerResult.prefault(schema.def.defaultValue);
+  }
+
+  // Handle nonoptional schemas by unwrapping and re-applying nonoptional
+  if (schema instanceof z.ZodNonOptional) {
+    const innerResult = zodDeepPartialInternal(schema.def.innerType, false);
+    return innerResult.nonoptional();
+  }
+
+  // Handle readonly schemas by unwrapping and re-applying readonly
+  if (schema instanceof z.ZodReadonly) {
+    return zodDeepPartialInternal(schema.def.innerType, false).readonly();
   }
 
   // Handle object schemas - the most common case
@@ -68,6 +98,20 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
         zodDeepPartialInternal(schema.def.keyType, false),
         zodDeepPartialInternal(schema.def.valueType, false),
       )
+      .optional();
+  }
+
+  // Handle set schemas - recursively process value type
+  if (schema instanceof z.ZodSet) {
+    return z
+      .set(zodDeepPartialInternal(schema.def.valueType, false))
+      .optional();
+  }
+
+  // Handle promise schemas - recursively process inner type
+  if (schema instanceof z.ZodPromise) {
+    return z
+      .promise(zodDeepPartialInternal(schema.def.innerType, false))
       .optional();
   }
 
@@ -144,6 +188,13 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
     });
 
     return z.discriminatedUnion(schema.def.discriminator, options as any);
+  }
+
+  // Handle pipe schemas - preserve both input and output types as-is
+  // Note: We don't deep-partial the input of pipes because transforms/refinements
+  // have specific input requirements. The parent object's .optional() handles optionality.
+  if (schema instanceof z.ZodPipe) {
+    return schema;
   }
 
   // Fallback for any other schema types - simply make them optional

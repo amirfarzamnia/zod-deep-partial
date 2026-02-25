@@ -10,6 +10,14 @@ import {
   ZodOptional,
   ZodNullable,
   ZodDefault,
+  ZodMap,
+  ZodSet,
+  ZodPromise,
+  ZodReadonly,
+  ZodCatch,
+  ZodPipe,
+  ZodNonOptional,
+  ZodPrefault,
 } from "zod";
 
 /**
@@ -26,6 +34,14 @@ import {
  * 6. Lazy/recursive schemas maintain their recursive structure
  * 7. Optional and nullable wrappers are preserved
  * 8. Default values are preserved
+ * 9. Map value types are made partial
+ * 10. Set element types are made partial
+ * 11. Promise inner types are made partial
+ * 12. Readonly wrappers are preserved
+ * 13. Catch wrappers are preserved
+ * 14. Pipe schemas are preserved as-is (transforms have specific input requirements)
+ * 15. NonOptional wrappers are preserved
+ * 16. Prefault wrappers are preserved
  *
  * The type handles all Zod schema variants through a series of conditional type checks,
  * ensuring complete type safety when working with deeply partial schemas.
@@ -59,36 +75,67 @@ export type DeepPartial<T extends z.core.SomeType> =
       : // Default: Preserve default wrapper and apply DeepPartial to inner type
         T extends ZodDefault<infer Inner>
         ? ZodDefault<DeepPartial<Inner>>
-        : // Objects: Recursively make all properties in the shape optional
-          T extends ZodObject<infer Shape>
-          ? ZodObject<{
-              [K in keyof Shape]: ZodOptional<DeepPartial<Shape[K]>>;
-            }>
-          : // Arrays: Recursively apply DeepPartial to element type
-            T extends ZodArray<infer Type>
-            ? ZodArray<DeepPartial<Type>>
-            : // Unions: Recursively apply DeepPartial to each option
-              T extends ZodUnion<infer Options>
-              ? ZodUnion<{ [K in keyof Options]: DeepPartial<Options[K]> }>
-              : // Intersections: Recursively apply DeepPartial to both sides
-                T extends ZodIntersection<infer Left, infer Right>
-                ? ZodIntersection<DeepPartial<Left>, DeepPartial<Right>>
-                : // Records: Recursively apply DeepPartial to value type (keys unchanged)
-                  T extends ZodRecord<infer Key, infer Value>
-                  ? ZodRecord<Key, DeepPartial<Value>>
-                  : // Tuples: Recursively apply DeepPartial to each item
-                    T extends ZodTuple<infer Items>
-                    ? ZodTuple<
-                        {
-                          [K in keyof Items]: DeepPartial<Items[K]>;
-                        } extends infer U
-                          ? U extends any[]
-                            ? U
-                            : never
-                          : never
-                      >
-                    : // Lazy / recursive: Recursively apply DeepPartial to the lazy type
-                      T extends ZodLazy<infer Type>
-                      ? ZodLazy<DeepPartial<Type>>
-                      : // Fallback: For any other schema type, return as-is
-                        ZodOptional<T>;
+        : // Catch: Preserve catch wrapper and apply DeepPartial to inner type
+          T extends ZodCatch<infer Inner>
+          ? ZodCatch<DeepPartial<Inner>>
+          : // Prefault: Preserve prefault wrapper and apply DeepPartial to inner type
+            T extends ZodPrefault<infer Inner>
+            ? ZodPrefault<DeepPartial<Inner>>
+            : // NonOptional: Preserve nonoptional wrapper and apply DeepPartial to inner type
+              T extends ZodNonOptional<infer Inner>
+              ? ZodNonOptional<DeepPartial<Inner>>
+              : // Readonly: Preserve readonly wrapper and apply DeepPartial to inner type
+                T extends ZodReadonly<infer Inner>
+                ? ZodReadonly<DeepPartial<Inner>>
+                : // Objects: Recursively make all properties in the shape optional
+                  T extends ZodObject<infer Shape>
+                  ? ZodObject<{
+                      [K in keyof Shape]: ZodOptional<DeepPartial<Shape[K]>>;
+                    }>
+                  : // Arrays: Recursively apply DeepPartial to element type
+                    T extends ZodArray<infer Type>
+                    ? ZodArray<DeepPartial<Type>>
+                    : // Maps: Recursively apply DeepPartial to value type (keys unchanged)
+                      T extends ZodMap<infer Key, infer Value>
+                      ? ZodMap<Key, DeepPartial<Value>>
+                      : // Sets: Recursively apply DeepPartial to element type
+                        T extends ZodSet<infer Type>
+                        ? ZodSet<DeepPartial<Type>>
+                        : // Promises: Recursively apply DeepPartial to inner type
+                          T extends ZodPromise<infer Type>
+                          ? ZodPromise<DeepPartial<Type>>
+                          : // Unions: Recursively apply DeepPartial to each option
+                            T extends ZodUnion<infer Options>
+                            ? ZodUnion<{
+                                [K in keyof Options]: DeepPartial<Options[K]>;
+                              }>
+                            : // Intersections: Recursively apply DeepPartial to both sides
+                              T extends ZodIntersection<infer Left, infer Right>
+                              ? ZodIntersection<
+                                  DeepPartial<Left>,
+                                  DeepPartial<Right>
+                                >
+                              : // Records: Recursively apply DeepPartial to value type (keys unchanged)
+                                T extends ZodRecord<infer Key, infer Value>
+                                ? ZodRecord<Key, DeepPartial<Value>>
+                                : // Tuples: Recursively apply DeepPartial to each item
+                                  T extends ZodTuple<infer Items>
+                                  ? ZodTuple<
+                                      {
+                                        [K in keyof Items]: DeepPartial<
+                                          Items[K]
+                                        >;
+                                      } extends infer U
+                                        ? U extends any[]
+                                          ? U
+                                          : never
+                                        : never
+                                    >
+                                  : // Pipe: Return as-is (transforms have specific input requirements)
+                                    T extends ZodPipe<infer In, infer Out>
+                                    ? ZodPipe<In, Out>
+                                    : // Lazy / recursive: Recursively apply DeepPartial to the lazy type
+                                      T extends ZodLazy<infer Type>
+                                      ? ZodLazy<DeepPartial<Type>>
+                                      : // Fallback: For any other schema type, return as-is
+                                        ZodOptional<T>;

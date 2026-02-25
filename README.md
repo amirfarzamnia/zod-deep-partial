@@ -27,7 +27,16 @@ A utility to recursively make all properties in a Zod schema optional.
   - Tuples (`z.tuple`)
   - Records (`z.record`)
   - Maps (`z.map`)
+  - Sets (`z.set`)
+  - Promises (`z.promise`)
   - Lazy Schemas (`z.lazy`)
+  - Readonly (`z.readonly`)
+  - Default values (`z.default`)
+  - Catch values (`z.catch`)
+  - Prefault values (`z.prefault`)
+  - NonOptional (`z.nonoptional`)
+  - Transforms/Pipes (`z.pipe`, `.transform()`)
+  - All primitive types (string, number, boolean, date, etc.)
 - **Zero Dependencies:** Relies only on `zod` as a peer dependency.
 
 ## Installation
