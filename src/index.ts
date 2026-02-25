@@ -233,10 +233,10 @@ function zodDeepPartialInternal<T extends z.core.SomeType>(
  *
  * const userSchema = z.object({
  *   name: z.string(),
- *   email: z.string().email(),
+ *   email: z.email(),
  *   profile: z.object({
  *     bio: z.string(),
- *     avatar: z.string().url(),
+ *     avatar: z.url(),
  *   }),
  * });
  *

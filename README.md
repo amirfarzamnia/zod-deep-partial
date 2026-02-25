@@ -70,10 +70,10 @@ import { zodDeepPartial } from "zod-deep-partial";
 // 1. Define your base schema
 const userSchema = z.object({
   name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   profile: z.object({
     bio: z.string(),
-    avatar: z.string().url(),
+    avatar: z.url(),
   }),
   tags: z.array(z.string()),
 });
