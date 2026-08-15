@@ -1,10 +1,18 @@
 # Zod Deep Partial
 
-[![NPM Version](https://img.shields.io/npm/v/zod-deep-partial?style=flat-square&logo=npm&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
-[![NPM Downloads](https://img.shields.io/npm/dm/zod-deep-partial?style=flat-square&logo=icloud&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
-[![NPM License](https://img.shields.io/npm/l/zod-deep-partial?style=flat-square&logo=spdx&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
-[![NPM Type Definitions](https://img.shields.io/npm/types/zod-deep-partial?style=flat-square&logo=typescript&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
-[![NPM Last Update](https://img.shields.io/npm/last-update/zod-deep-partial?style=flat-square&logo=clockify&logoColor=white&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Version](https://img.shields.io/npm/v/zod-deep-partial?style=flat-square\&logo=npm\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Downloads](https://img.shields.io/npm/dm/zod-deep-partial?style=flat-square\&logo=icloud\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM License](https://img.shields.io/npm/l/zod-deep-partial?style=flat-square\&logo=spdx\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Type Definitions](https://img.shields.io/npm/types/zod-deep-partial?style=flat-square\&logo=typescript\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Last Update](https://img.shields.io/npm/last-update/zod-deep-partial?style=flat-square\&logo=clockify\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+
+> [!WARNING]
+> **Archived:** This project is no longer maintained. Zod has added native deep partial functionality. See [Zod PR #5928](https://github.com/colinhacks/zod/pull/5928).
+
+> [!NOTE]
+> **This project was created as a temporary solution after Zod removed its `deepPartial` functionality, with the goal of providing this functionality until it could be added back to Zod. See [Zod issue #2854](https://github.com/colinhacks/zod/issues/2854).**
+>
+> **Zod has now added deep partial functionality again through [PR #5928](https://github.com/colinhacks/zod/pull/5928). As a result, this project is being archived and will not receive further updates. Thank you to everyone who used, contributed to, or supported this project.**
 
 A utility to recursively make all properties in a Zod schema optional.
 
