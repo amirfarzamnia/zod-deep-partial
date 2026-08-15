@@ -1,7 +1,7 @@
 # Zod Deep Partial
 
 [![NPM Version](https://img.shields.io/npm/v/zod-deep-partial?style=flat-square\&logo=npm\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
-[![NPM Downloads](https://img.shields.io/npm/dm/zod-deep-partial?style=flat-square\&logo=icloud\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
+[![NPM Downloads](https://img.shields.io/npm/d18m/zod-deep-partial?style=flat-square\&logo=icloud\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
 [![NPM License](https://img.shields.io/npm/l/zod-deep-partial?style=flat-square\&logo=spdx\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
 [![NPM Type Definitions](https://img.shields.io/npm/types/zod-deep-partial?style=flat-square\&logo=typescript\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
 [![NPM Last Update](https://img.shields.io/npm/last-update/zod-deep-partial?style=flat-square\&logo=clockify\&logoColor=white\&color=blue)](https://www.npmjs.com/package/zod-deep-partial)
